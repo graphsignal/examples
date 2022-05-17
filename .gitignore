@@ -1,0 +1,11 @@
+.DS_Store
+*.DS_Store
+venv
+.pytest_cache
+*.pyc
+.bin
+build
+npm-debug.log
+node_modules
+!.gitkeep
+/data

@@ -12,6 +12,6 @@ else
     pip install tensorflow
 fi
 pip install tensorflow-datasets
-pip install -e ../../graphsignal
+pip install graphsignal
 
 deactivate

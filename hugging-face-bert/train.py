@@ -24,8 +24,8 @@ def tokenize_function(examples):
 
 tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
 
-small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(100))
-small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(100))
+small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
+small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
 full_train_dataset = tokenized_datasets["train"]
 full_eval_dataset = tokenized_datasets["test"]
 
@@ -34,9 +34,10 @@ model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", nu
 
 from transformers import TrainingArguments
 training_args = TrainingArguments("test_trainer", 
-    fp16=True,
-    per_device_train_batch_size=1, 
-    gradient_accumulation_steps=4)
+    #fp16=True
+    #per_device_train_batch_size=1, 
+    #gradient_accumulation_steps=4
+    )
 
 # Graphsignal: add profiler callback
 from transformers import Trainer

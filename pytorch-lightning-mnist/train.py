@@ -30,6 +30,7 @@ class MNISTModel(LightningModule):
         super().__init__()
         self.l1 = torch.nn.Linear(28 * 28, 10)
         self.batch_size = BATCH_SIZE
+        self.train_acc = Accuracy()
 
     def optimizer_zero_grad(self, epoch, batch_idx, optimizer, optimizer_idx):
         optimizer.zero_grad(set_to_none=True)
@@ -39,7 +40,10 @@ class MNISTModel(LightningModule):
 
     def training_step(self, batch, batch_nb):
         x, y = batch
-        loss = F.cross_entropy(self(x), y)
+        preds = self(x)
+        loss = F.cross_entropy(preds, y)
+        self.train_acc(preds, y)
+        self.log('train_acc', self.train_acc, on_step=True, on_epoch=False)
         return loss
 
     def train_dataloader(self):
@@ -61,10 +65,10 @@ trainer = Trainer(
     #accelerator='gpu',
     #devices=AVAIL_GPUS,
     #strategy="dp",
-    gpus=2,
-    accelerator='ddp',
+    #gpus=2,
+    #accelerator='ddp',
     #precision=16,
-    max_epochs=3,
+    max_epochs=10,
     callbacks=[GraphsignalCallback(batch_size=mnist_model.batch_size)]
 )
 

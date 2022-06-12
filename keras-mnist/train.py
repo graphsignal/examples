@@ -13,9 +13,14 @@ logger.setLevel(logging.DEBUG)
 
 # Graphsignal: configure module
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='MNIST Keras Training')
+graphsignal.configure(workload_name='Keras MNIST')
+
+strategy = tf.distribute.MirroredStrategy()
+print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
 tfds.disable_progress_bar()
+
+batch_size = 1024
 
 (ds_train, ds_test), ds_info = tfds.load(
     'mnist',
@@ -30,15 +35,21 @@ def normalize_img(image, label):
     return tf.cast(image, tf.float32) / 255., label
 
 ds_train = ds_train.map(normalize_img)
-ds_train = ds_train.batch(128)
+ds_train = ds_train.batch(batch_size)
+ds_train = ds_train.cache()
+ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
 
 ds_test = ds_test.map(normalize_img)
-ds_test = ds_test.batch(128)
+ds_test = ds_test.batch(batch_size)
+ds_train = ds_train.cache()
+ds_test = ds_test.prefetch(tf.data.AUTOTUNE)
 
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Flatten(input_shape=(28, 28, 1)),
-    tf.keras.layers.Dense(128,activation='relu'),
-    tf.keras.layers.Dense(10, activation='softmax')])
+
+with strategy.scope():
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28, 1)),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(10, activation='softmax')])
 
 model.compile(
     loss='sparse_categorical_crossentropy',
@@ -49,4 +60,4 @@ model.compile(
 model.fit(ds_train,
         epochs=10,
         validation_data=ds_test,
-        callbacks=[GraphsignalCallback()])
+        callbacks=[GraphsignalCallback(batch_size=batch_size)])

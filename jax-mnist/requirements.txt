@@ -1,0 +1,4 @@
+jax[cuda]
+tensorflow
+tensorflow-datasets
+graphsignal

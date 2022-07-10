@@ -56,8 +56,11 @@ model.compile(
     optimizer=tf.keras.optimizers.Adam(0.001),
     metrics=['accuracy'])
 
-# Graphsignal: add profiler callback
 model.fit(ds_train,
-        epochs=10,
-        validation_data=ds_test,
-        callbacks=[GraphsignalCallback(batch_size=batch_size)])
+        epochs=2,
+        validation_data=ds_test)
+
+# Graphsignal: add profiler callback
+model.evaluate(ds_test,
+    batch_size=batch_size,
+    callbacks=[GraphsignalCallback(batch_size=batch_size)])

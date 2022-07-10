@@ -8,7 +8,7 @@ from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 # Graphsignal: import
 import graphsignal
-from graphsignal.profilers.pytorch import profile_step
+from graphsignal.profilers.pytorch import profile_inference
 
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
@@ -44,20 +44,18 @@ class Net(nn.Module):
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
-        # Graphsignal: profile training step
-        with profile_step(phase_name='train', effective_batch_size=args.batch_size):
-            data, target = data.to(device), target.to(device)
-            optimizer.zero_grad()
-            output = model(data)
-            loss = F.nll_loss(output, target)
-            loss.backward()
-            optimizer.step()
-            if batch_idx % args.log_interval == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    epoch, batch_idx * len(data), len(train_loader.dataset),
-                    100. * batch_idx / len(train_loader), loss.item()))
-                if args.dry_run:
-                    break
+        data, target = data.to(device), target.to(device)
+        optimizer.zero_grad()
+        output = model(data)
+        loss = F.nll_loss(output, target)
+        loss.backward()
+        optimizer.step()
+        if batch_idx % args.log_interval == 0:
+            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                epoch, batch_idx * len(data), len(train_loader.dataset),
+                100. * batch_idx / len(train_loader), loss.item()))
+            if args.dry_run:
+                break
 
 
 def test(args, model, device, test_loader):
@@ -67,7 +65,7 @@ def test(args, model, device, test_loader):
     with torch.no_grad():
         for data, target in test_loader:
             # Graphsignal: profile evaluation
-            with profile_step(phase_name='eval', effective_batch_size=args.test_batch_size):
+            with profile_inference(batch_size=args.test_batch_size):
                 data, target = data.to(device), target.to(device)
                 output = model(data)
                 test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
@@ -75,10 +73,14 @@ def test(args, model, device, test_loader):
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
+    test_acc = 100. * correct / len(test_loader.dataset)
 
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
+        test_loss, correct, len(test_loader.dataset), test_acc))
+    
+    # Graphsignal: log test accuracy
+    graphsignal.log_metric('test_acc', test_acc)
+
 
 
 def main():
@@ -88,7 +90,7 @@ def main():
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=14, metavar='N',
+    parser.add_argument('--epochs', type=int, default=2, metavar='N',
                         help='number of epochs to train (default: 14)')
     parser.add_argument('--lr', type=float, default=1.0, metavar='LR',
                         help='learning rate (default: 1.0)')

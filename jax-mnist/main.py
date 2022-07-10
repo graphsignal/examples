@@ -4,7 +4,7 @@ from jax import grad, jit, vmap
 from jax import random
 # Graphsignal: import
 import graphsignal
-from graphsignal.profilers.jax import profile_step
+from graphsignal.profilers.jax import profile_inference
 
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
@@ -49,11 +49,13 @@ batched_preds = batched_predict(params, random_flattened_images)
 def one_hot(x, k, dtype=jnp.float32):
   """Create a one-hot encoding of x of size k."""
   return jnp.array(x[:, None] == jnp.arange(k), dtype)
-  
+
 def accuracy(params, images, targets):
   target_class = jnp.argmax(targets, axis=1)
-  predicted_class = jnp.argmax(batched_predict(params, images), axis=1)
-  return jnp.mean(predicted_class == target_class)
+  # Graphsignal: profile evaluation
+  with profile_inference(batch_size=batch_size):
+    predicted_class = jnp.argmax(batched_predict(params, images), axis=1)
+    return jnp.mean(predicted_class == target_class)
 
 def loss(params, images, targets):
   preds = batched_predict(params, images)
@@ -93,12 +95,14 @@ def get_train_batches():
 
 for epoch in range(num_epochs):
   for x, y in get_train_batches():
-    with profile_step(phase_name='training', effective_batch_size=batch_size):
-      x = jnp.reshape(x, (len(x), num_pixels))
-      y = one_hot(y, num_labels)
-      params = update(params, x, y)
+    x = jnp.reshape(x, (len(x), num_pixels))
+    y = one_hot(y, num_labels)
+    params = update(params, x, y)
 
   train_acc = accuracy(params, train_images, train_labels)
   test_acc = accuracy(params, test_images, test_labels)
   print("Training set accuracy {}".format(train_acc))
   print("Test set accuracy {}".format(test_acc))
+
+  # Graphsignal: log test accuracy
+  graphsignal.log_metric('test_acc', test_acc.item())

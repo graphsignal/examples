@@ -3,5 +3,5 @@
 set -e 
 
 source venv/bin/activate
-python train.py
+python main.py
 deactivate

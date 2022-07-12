@@ -1,3 +1,3 @@
-# PyTorch MNIST Example
+# ONNX Runtime MNIST Example
 
 * Run `tools/run-example.sh`

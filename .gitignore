@@ -9,3 +9,6 @@ npm-debug.log
 node_modules
 !.gitkeep
 /data
+temp
+lightning_logs
+MNIST

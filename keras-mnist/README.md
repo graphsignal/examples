@@ -1,3 +1,3 @@
-# Keras MNIST Training Example
+# Keras MNIST Example
 
-* Run `tools/run-training.sh`
+* Run `tools/run-example.sh`

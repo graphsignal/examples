@@ -28,6 +28,6 @@ cd example/keras-mnist
 ```
 
 ```sh
-tools/run-training.sh
+tools/run-example.sh
 ```
 ```

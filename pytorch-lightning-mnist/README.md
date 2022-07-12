@@ -1,3 +1,3 @@
-# PyTorch MNIST Training Example
+# PyTorch Lightning MNIST Example
 
-* Run `tools/run-training.sh`
+* Run `tools/run-example.sh`

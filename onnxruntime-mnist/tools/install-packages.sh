@@ -13,6 +13,7 @@ pip install torch
 pip install torchmetrics
 pip install torchvision
 pip install pytorch_lightning
+pip install onnxruntime
 pip install graphsignal
 
 deactivate

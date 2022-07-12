@@ -1,3 +1,3 @@
-#  Hugging Face BERT Training
+#  Hugging Face BERT Example
 
-* Run `tools/run-training.sh`
+* Run `tools/run-example.sh`

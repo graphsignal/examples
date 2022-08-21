@@ -1,0 +1,8 @@
+torch
+torchmetrics
+torchvision
+onnxruntime
+transformers
+fastapi
+uvicorn
+graphsignal

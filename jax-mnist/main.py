@@ -4,11 +4,11 @@ from jax import grad, jit, vmap
 from jax import random
 # Graphsignal: import
 import graphsignal
-from graphsignal.profilers.jax import profile_inference
+from graphsignal.tracers.jax import inference_span
 
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='JAX MNIST')
+graphsignal.configure()
 
 
 def random_layer_params(m, n, key, scale=1e-2):
@@ -52,8 +52,9 @@ def one_hot(x, k, dtype=jnp.float32):
 
 def accuracy(params, images, targets):
   target_class = jnp.argmax(targets, axis=1)
-  # Graphsignal: profile evaluation
-  with profile_inference(batch_size=batch_size):
+  # Graphsignal: measure and profile inference
+  with inference_span(model_name='mnist') as span:
+    span.set_count('items', batch_size)
     predicted_class = jnp.argmax(batched_predict(params, images), axis=1)
     return jnp.mean(predicted_class == target_class)
 
@@ -103,6 +104,3 @@ for epoch in range(num_epochs):
   test_acc = accuracy(params, test_images, test_labels)
   print("Training set accuracy {}".format(train_acc))
   print("Test set accuracy {}".format(test_acc))
-
-  # Graphsignal: log test accuracy
-  graphsignal.log_metric('test_acc', test_acc.item())

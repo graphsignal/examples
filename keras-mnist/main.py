@@ -5,7 +5,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 # Graphsignal: import module
 import graphsignal
-from graphsignal.profilers.keras import GraphsignalCallback
+from graphsignal.tracers.keras import GraphsignalCallback
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -13,7 +13,7 @@ logger.setLevel(logging.DEBUG)
 
 # Graphsignal: configure module
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='Keras MNIST')
+graphsignal.configure()
 
 strategy = tf.distribute.MirroredStrategy()
 print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
@@ -60,7 +60,7 @@ model.fit(ds_train,
         epochs=2,
         validation_data=ds_test)
 
-# Graphsignal: add profiler callback
+# Graphsignal: add callback
 model.evaluate(ds_test,
     batch_size=batch_size,
-    callbacks=[GraphsignalCallback(batch_size=batch_size)])
+    callbacks=[GraphsignalCallback(model_name='keras-mnist', batch_size=batch_size)])

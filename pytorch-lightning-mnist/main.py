@@ -10,17 +10,15 @@ from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-# Graphsignal: import
-import graphsignal
-from graphsignal.profilers.pytorch_lightning import GraphsignalCallback
-
 logging.basicConfig()
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='PyTorch Lightning MNIST')
+import graphsignal
+from graphsignal.tracers.pytorch_lightning import GraphsignalCallback
+graphsignal.configure()
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -72,20 +70,10 @@ class MNISTModel(LightningModule):
 
 mnist_model = MNISTModel()
 
-# Graphsignal: add profiler callback
+# Graphsignal: add callback
 trainer = Trainer(
-    #accelerator='gpu',
-    #devices=AVAIL_GPUS,
-    #strategy="dp",
-    #gpus=AVAIL_GPUS,
-    #accelerator='ddp',
-    #precision=8,
     max_epochs=10,
-    callbacks=[
-        GraphsignalCallback(batch_size=mnist_model.batch_size * 2)
-        #ModelPruning("l1_unstructured", amount=0.5)
-        #QuantizationAwareTraining()
-    ]
+    callbacks=[GraphsignalCallback(model_name='mnist-pl', batch_size=mnist_model.batch_size * 2)]
 )
 
 trainer.tune(mnist_model)
@@ -93,4 +81,3 @@ trainer.tune(mnist_model)
 trainer.fit(mnist_model)
 
 trainer.test(mnist_model)
-

@@ -6,13 +6,12 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
-# Graphsignal: import
-import graphsignal
-from graphsignal.profilers.pytorch import profile_inference
 
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='PyTorch MNIST')
+import graphsignal
+from graphsignal.tracers.pytorch import inference_span
+graphsignal.configure()
 
 
 class Net(nn.Module):
@@ -64,8 +63,9 @@ def test(args, model, device, test_loader):
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
-            # Graphsignal: profile evaluation
-            with profile_inference(batch_size=args.test_batch_size):
+            # Graphsignal: measure and profile inference
+            with inference_span(model_name='mnist') as span:
+                span.set_count('items', args.test_batch_size)
                 data, target = data.to(device), target.to(device)
                 output = model(data)
                 test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
@@ -77,9 +77,6 @@ def test(args, model, device, test_loader):
 
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset), test_acc))
-    
-    # Graphsignal: log test accuracy
-    graphsignal.log_metric('test_acc', test_acc)
 
 
 

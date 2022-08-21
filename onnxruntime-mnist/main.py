@@ -12,17 +12,15 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 import onnxruntime
 
-# Graphsignal: import
-import graphsignal
-from graphsignal.profilers.onnxruntime import initialize_profiler, profile_inference
-
 logging.basicConfig()
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='ONNX Runtime MNIST')
+import graphsignal
+from graphsignal.tracers.onnxruntime import initialize_profiler, inference_span
+graphsignal.configure()
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -90,12 +88,7 @@ session = onnxruntime.InferenceSession(TEST_MODEL_PATH, sess_options)
 test_ds = MNIST(PATH_DATASETS, train=False, download=True, transform=transforms.ToTensor())
 test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
 
-test_acc = Accuracy()
 for x, y in test_loader:
     # Graphsignal: measure and profile inference.
-    with profile_inference(session):
-        preds = session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })
-        test_acc.update(torch.tensor(preds[0]), y)
-
-# Graphsignal: log test accuracy.
-graphsignal.log_metric('test_acc', test_acc.compute().item())
+    with inference_span(model_name='mnist', onnx_session=session):
+        session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })

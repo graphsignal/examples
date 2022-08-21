@@ -1,7 +1,7 @@
 import logging
 # Graphsignal: import
 import graphsignal
-from graphsignal.profilers.pytorch import profile_inference
+from graphsignal.tracers.pytorch import inference_span
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -9,8 +9,7 @@ logger.setLevel(logging.DEBUG)
 
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='Hugging Face BERT IMDB')
-
+graphsignal.configure()
 
 from datasets import load_dataset
 raw_datasets = load_dataset("imdb")
@@ -35,13 +34,14 @@ model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", nu
 from transformers import Trainer, TrainingArguments
 training_args = TrainingArguments("test_trainer")
 
-# Graphsignal: profiler prediction_step
 class MyTrainer(Trainer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
     def prediction_step(self, *args, **kwargs):
-        with profile_inference(batch_size=training_args.eval_batch_size):
+        # Graphsignal: measure and profile inference
+        with inference_span(model_name='bert-imdb') as span:
+            span.set_count('items', training_args.eval_batch_size)
             return super().prediction_step(*args, **kwargs)
 
 

@@ -1,3 +1,4 @@
+import uuid
 from pathlib import Path
 from transformers import AutoTokenizer, pipeline, PretrainedConfig
 from optimum.onnxruntime import ORTModelForSequenceClassification
@@ -40,7 +41,7 @@ def compute_accuracy(pipe):
 
 # Graphsignal: configure, expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
-graphsignal.configure()
+graphsignal.configure(workload_name='experiment-{0}'.format(str(uuid.uuid4())[:8]))
 
 
 if not args.onnx:

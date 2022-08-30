@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Graphsignal: configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(workload_name='serving-prod-gpu')
+graphsignal.configure()
 
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased", cache_dir='temp/cache')
 
@@ -32,7 +32,7 @@ async def predict(request: Request):
     body = await request.json()
     inputs = tokenizer(body['text'], return_tensors="np")
     # Graphsignal: measure and profile inference
-    with inference_span(model_name='DistilBERT', onnx_session=session):
+    with inference_span(model_name='DistilBERT-prod-gpu', onnx_session=session):
         outputs = session.run(output_names=["logits"], input_feed=dict(inputs))
     return JSONResponse(content={"outputs": outputs[0].tolist()})
 

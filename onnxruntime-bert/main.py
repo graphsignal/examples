@@ -41,7 +41,7 @@ def compute_accuracy(pipe):
 
 # Graphsignal: configure, expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
-graphsignal.configure(workload_name='experiment-{0}'.format(str(uuid.uuid4())[:8]))
+graphsignal.configure()
 
 
 if not args.onnx:
@@ -100,5 +100,8 @@ if args.onnx:
 
     for _ in range(100):
         # Graphsignal: measure and profile inference
-        with inference_span(model_name='distilbert', metadata=dict(accuracy=accuracy), onnx_session=session):
+        with inference_span(
+                model_name='distilbert', 
+                metadata=dict(run_name='run1', accuracy=accuracy), 
+                onnx_session=session):
             _ = optimum_clx(payload)

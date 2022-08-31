@@ -19,8 +19,8 @@ logger.setLevel(logging.DEBUG)
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
-from graphsignal.tracers.onnxruntime import initialize_profiler, inference_span
 graphsignal.configure()
+tracer = graphsignal.tracer(with_profiler='onnxruntime')
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -80,15 +80,15 @@ if not os.path.exists(TEST_MODEL_PATH):
 
 sess_options = onnxruntime.SessionOptions()
 sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
-# Graphsignal: initialize profiler for ONNX inference session.
-initialize_profiler(sess_options)
+tracer.profiler().initialize_options(sess_options)
 
 session = onnxruntime.InferenceSession(TEST_MODEL_PATH, sess_options)
+tracer.profiler().set_onnx_session(session)
 
 test_ds = MNIST(PATH_DATASETS, train=False, download=True, transform=transforms.ToTensor())
 test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
 
 for x, y in test_loader:
     # Graphsignal: measure and profile inference.
-    with inference_span(model_name='mnist', onnx_session=session):
+    with tracer.inference_span(model_name='mnist'):
         session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })

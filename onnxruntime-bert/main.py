@@ -45,16 +45,15 @@ graphsignal.configure()
 
 
 if not args.onnx:
-    from graphsignal.tracers.pytorch import inference_span
+    tracer = graphsignal.tracer(with_profiler='pytorch')
 
     vanilla_clx = pipeline(task, model=model_id, device=0 if args.gpu else -1)
     accuracy = compute_accuracy(vanilla_clx)
 
     for _ in range(100):
         # Graphsignal: measure and profile inference
-        with inference_span(model_name='distilbert', metadata=dict(accuracy=accuracy)):
+        with tracer.inference_span(model_name='distilbert', metadata=dict(accuracy=accuracy)):
             _ = vanilla_clx(payload)
-
 
 if args.onnx:
     if args.quantize:
@@ -78,12 +77,13 @@ if args.onnx:
     tokenizer.save_pretrained(onnx_path)
 
     import onnxruntime
-    from graphsignal.tracers.onnxruntime import initialize_profiler, inference_span
+
+    tracer = graphsignal.tracer(with_profiler='onnxruntime')
 
     sess_options = onnxruntime.SessionOptions()
 
     # Graphsignal: initialize profiler for ONNX Runtime session
-    initialize_profiler(sess_options)
+    tracer.profiler().initialize_options(sess_options)
 
     session = onnxruntime.InferenceSession(
         str(onnx_path / 'model.onnx'),
@@ -91,6 +91,8 @@ if args.onnx:
         providers=[
             'CUDAExecutionProvider' if args.gpu else 'CPUExecutionProvider'
         ])
+    tracer.profiler().set_onnx_session(session)
+
     model_from_session = ORTModelForSequenceClassification(
         model=session, 
         config=PretrainedConfig.from_json_file(onnx_path / 'config.json'))
@@ -100,8 +102,7 @@ if args.onnx:
 
     for _ in range(100):
         # Graphsignal: measure and profile inference
-        with inference_span(
+        with tracer.inference_span(
                 model_name='distilbert', 
-                metadata=dict(run_name='run1', accuracy=accuracy), 
-                onnx_session=session):
+                metadata=dict(run_name='run1', accuracy=accuracy)):
             _ = optimum_clx(payload)

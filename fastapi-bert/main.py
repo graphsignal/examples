@@ -8,13 +8,13 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import uvicorn
 import graphsignal
-from graphsignal.tracers.pytorch import inference_span
 
 logging.basicConfig(level=logging.DEBUG)
 
 # Graphsignal: configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 graphsignal.configure()
+tracer = graphsignal.tracer(with_profiler='pytorch')
 
 app = FastAPI()
 
@@ -26,12 +26,8 @@ async def predict(request: Request):
 
     # Graphsignal: measure and profile inference
     print('request_id', body['request_id'])
-    s2 = time.perf_counter()
-    with inference_span(model_name='distilbert-prod', tags=dict(request_id=body['request_id'])):
-        s1 = time.perf_counter()
+    with tracer.inference_span(model_name='distilbert-prod', tags=dict(request_id=body['request_id'])):
         output = pipe(body['text'])
-        print('S1', time.perf_counter() - s1)
-    print('S2', time.perf_counter() - s2)
     return JSONResponse(content={"output": output})
 
 if __name__ == "__main__":

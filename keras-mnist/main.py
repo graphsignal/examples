@@ -3,15 +3,14 @@ import time
 import random
 import tensorflow as tf
 import tensorflow_datasets as tfds
-# Graphsignal: import module
 import graphsignal
-from graphsignal.tracers.keras import GraphsignalCallback
+from graphsignal.callbacks.keras import GraphsignalCallback
 
 logging.basicConfig()
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-# Graphsignal: configure module
+# Graphsignal: configure agent
 #   expects GRAPHSIGNAL_API_KEY environment variable
 graphsignal.configure()
 

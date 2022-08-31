@@ -1,7 +1,5 @@
 import logging
-# Graphsignal: import
 import graphsignal
-from graphsignal.tracers.pytorch import inference_span
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -10,6 +8,7 @@ logger.setLevel(logging.DEBUG)
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 graphsignal.configure()
+tracer = graphsignal.tracer(with_profiler='pytorch')
 
 from datasets import load_dataset
 raw_datasets = load_dataset("imdb")
@@ -40,7 +39,7 @@ class MyTrainer(Trainer):
     
     def prediction_step(self, *args, **kwargs):
         # Graphsignal: measure and profile inference
-        with inference_span(model_name='bert-imdb') as span:
+        with tracer.inference_span(model_name='bert-imdb') as span:
             span.set_count('items', training_args.eval_batch_size)
             return super().prediction_step(*args, **kwargs)
 

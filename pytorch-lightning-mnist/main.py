@@ -17,7 +17,7 @@ logger.setLevel(logging.DEBUG)
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
-from graphsignal.tracers.pytorch_lightning import GraphsignalCallback
+from graphsignal.callbacks.pytorch_lightning import GraphsignalCallback
 graphsignal.configure()
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")

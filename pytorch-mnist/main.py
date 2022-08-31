@@ -10,8 +10,8 @@ from torch.optim.lr_scheduler import StepLR
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
-from graphsignal.tracers.pytorch import inference_span
 graphsignal.configure()
+tracer = graphsignal.tracer(with_profiler='pytorch')
 
 
 class Net(nn.Module):
@@ -64,7 +64,7 @@ def test(args, model, device, test_loader):
     with torch.no_grad():
         for data, target in test_loader:
             # Graphsignal: measure and profile inference
-            with inference_span(model_name='mnist') as span:
+            with tracer.inference_span(model_name='mnist') as span:
                 span.set_count('items', args.test_batch_size)
                 data, target = data.to(device), target.to(device)
                 output = model(data)

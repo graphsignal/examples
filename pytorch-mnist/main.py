@@ -65,8 +65,6 @@ def test(args, model, device, test_loader):
         for data, target in test_loader:
             # Graphsignal: measure and profile inference
             with tracer.inference_span(model_name='mnist') as span:
-                span.measure_data(counts=dict(items=args.test_batch_size))
-
                 data, target = data.to(device), target.to(device)
                 output = model(data)
                 test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss

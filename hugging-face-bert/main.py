@@ -40,8 +40,6 @@ class MyTrainer(Trainer):
     def prediction_step(self, *args, **kwargs):
         # Graphsignal: measure and profile inference
         with tracer.inference_span(model_name='bert-imdb') as span:
-            span.measure_data(counts=dict(items=training_args.eval_batch_size))
-
             return super().prediction_step(*args, **kwargs)
 
 

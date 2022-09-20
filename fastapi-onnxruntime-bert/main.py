@@ -31,7 +31,7 @@ async def predict(request: Request):
     body = await request.json()
     inputs = tokenizer(body['text'], return_tensors="np")
     # Graphsignal: measure and profile inference
-    with tracer.inference_span(model_name='DistilBERT-prod-gpu'):
+    with tracer.span(endpoint='DistilBERT-prod-gpu'):
         outputs = session.run(output_names=["logits"], input_feed=dict(inputs))
     return JSONResponse(content={"outputs": outputs[0].tolist()})
 

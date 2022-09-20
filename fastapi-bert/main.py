@@ -26,7 +26,7 @@ async def predict(request: Request):
 
     # Graphsignal: measure and profile inference
     print('request_id', body['request_id'])
-    with tracer.inference_span(model_name='distilbert-prod', tags=dict(request_id=body['request_id'])) as span:
+    with tracer.span(endpoint='distilbert-prod', tags=dict(request_id=body['request_id'])) as span:
         span.set_data('input', body['text'])
         output = pipe(body['text'])
     return JSONResponse(content={"output": output})

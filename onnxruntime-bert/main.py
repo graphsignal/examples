@@ -52,7 +52,7 @@ if not args.onnx:
 
     for _ in range(100):
         # Graphsignal: measure and profile inference
-        with tracer.inference_span(model_name='distilbert', metadata=dict(accuracy=accuracy)):
+        with tracer.span(endpoint='distilbert', metadata=dict(accuracy=accuracy)):
             _ = vanilla_clx(payload)
 
 if args.onnx:
@@ -102,7 +102,7 @@ if args.onnx:
 
     for _ in range(100):
         # Graphsignal: measure and profile inference
-        with tracer.inference_span(
-                model_name='distilbert', 
+        with tracer.span(
+                endpoint='distilbert', 
                 metadata=dict(run_name='run1', accuracy=accuracy)):
             _ = optimum_clx(payload)

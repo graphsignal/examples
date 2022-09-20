@@ -62,4 +62,4 @@ model.fit(ds_train,
 # Graphsignal: add callback
 model.evaluate(ds_test,
     batch_size=batch_size,
-    callbacks=[GraphsignalCallback(model_name='keras-mnist')])
+    callbacks=[GraphsignalCallback(endpoint='keras-mnist')])

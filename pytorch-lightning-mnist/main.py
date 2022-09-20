@@ -73,7 +73,7 @@ mnist_model = MNISTModel()
 # Graphsignal: add callback
 trainer = Trainer(
     max_epochs=10,
-    callbacks=[GraphsignalCallback(model_name='mnist-pl')]
+    callbacks=[GraphsignalCallback(endpoint='mnist-pl')]
 )
 
 trainer.tune(mnist_model)

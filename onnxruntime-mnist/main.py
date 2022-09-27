@@ -90,5 +90,5 @@ test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
 
 for x, y in test_loader:
     # Graphsignal: measure and profile inference.
-    with tracer.span(endpoint='mnist'):
+    with tracer.trace(endpoint='mnist'):
         session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })

@@ -39,7 +39,7 @@ class MyTrainer(Trainer):
     
     def prediction_step(self, *args, **kwargs):
         # Graphsignal: measure and profile inference
-        with tracer.span(endpoint='bert-imdb') as span:
+        with tracer.trace(endpoint='bert-imdb') as span:
             return super().prediction_step(*args, **kwargs)
 
 

@@ -19,6 +19,6 @@ pip install transformers
 pip install datasets
 pip install fastapi
 pip install uvicorn
-pip install graphsignal
+pip install -e ../../graphsignal
 
 deactivate

@@ -52,7 +52,7 @@ def one_hot(x, k, dtype=jnp.float32):
 def accuracy(params, images, targets):
   target_class = jnp.argmax(targets, axis=1)
   # Graphsignal: measure and profile inference
-  with tracer.span(endpoint='mnist') as span:
+  with tracer.trace(endpoint='mnist') as span:
     predicted_class = jnp.argmax(batched_predict(params, images), axis=1)
     return jnp.mean(predicted_class == target_class)
 

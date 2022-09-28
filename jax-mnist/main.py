@@ -7,7 +7,6 @@ import graphsignal
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 graphsignal.configure()
-tracer = graphsignal.tracer(with_profiler='jax')
 
 
 def random_layer_params(m, n, key, scale=1e-2):
@@ -52,7 +51,7 @@ def one_hot(x, k, dtype=jnp.float32):
 def accuracy(params, images, targets):
   target_class = jnp.argmax(targets, axis=1)
   # Graphsignal: measure and profile inference
-  with tracer.trace(endpoint='mnist') as span:
+  with graphsignal.start_trace(endpoint='mnist', profiler='jax'):
     predicted_class = jnp.argmax(batched_predict(params, images), axis=1)
     return jnp.mean(predicted_class == target_class)
 

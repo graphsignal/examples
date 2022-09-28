@@ -8,7 +8,6 @@ logger.setLevel(logging.DEBUG)
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 graphsignal.configure()
-tracer = graphsignal.tracer(with_profiler='pytorch')
 
 from datasets import load_dataset
 raw_datasets = load_dataset("imdb")
@@ -39,7 +38,7 @@ class MyTrainer(Trainer):
     
     def prediction_step(self, *args, **kwargs):
         # Graphsignal: measure and profile inference
-        with tracer.trace(endpoint='bert-imdb') as span:
+        with graphsignal.start_trace(endpoint='bert-imdb', profiler='pytorch'):
             return super().prediction_step(*args, **kwargs)
 
 

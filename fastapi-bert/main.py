@@ -13,12 +13,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Graphsignal: configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure()
-tracer = graphsignal.tracer(with_profiler='pytorch')
+graphsignal.configure(deployment='app-prod')
 
 app = FastAPI()
 
-pipe = pipeline(task="text-classification", model="distilbert-base-uncased", device=0)
+pipe = pipeline(task="text-classification", model="distilbert-base-uncased")
 
 @app.post("/predict")
 async def predict(request: Request):
@@ -26,8 +25,8 @@ async def predict(request: Request):
 
     # Graphsignal: measure and profile inference
     print('request_id', body['request_id'])
-    with tracer.trace(endpoint='distilbert-prod', tags=dict(request_id=body['request_id'])) as span:
-        span.set_data('input', body['text'])
+    with graphsignal.start_trace(endpoint='distilbert-prod', tags=dict(request_id=body['request_id']), profiler='pytorch') as trace:
+        trace.set_data('input', body['text'])
         output = pipe(body['text'])
     return JSONResponse(content={"output": output})
 

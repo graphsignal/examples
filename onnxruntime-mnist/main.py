@@ -20,7 +20,6 @@ logger.setLevel(logging.DEBUG)
 #   expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
 graphsignal.configure()
-tracer = graphsignal.tracer(with_profiler='onnxruntime')
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -78,17 +77,20 @@ if not os.path.exists(TEST_MODEL_PATH):
         dynamic_axes={'input' : {0 : 'batch_size'},
                         'output' : {0 : 'batch_size'}})
 
+from graphsignal.profilers.onnxruntime_profiler import ONNXRuntimeProfiler()
+ort_profiler = ONNXRuntimeProfiler()
+
 sess_options = onnxruntime.SessionOptions()
 sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
-tracer.profiler().initialize_options(sess_options)
+ort_profiler.initialize_options(sess_options)
 
 session = onnxruntime.InferenceSession(TEST_MODEL_PATH, sess_options)
-tracer.profiler().set_onnx_session(session)
+ort_profiler.set_onnx_session(session)
 
 test_ds = MNIST(PATH_DATASETS, train=False, download=True, transform=transforms.ToTensor())
 test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
 
 for x, y in test_loader:
     # Graphsignal: measure and profile inference.
-    with tracer.trace(endpoint='mnist'):
+    with graphsignal.start_trace(endpoint='mnist', profiler=ort_profiler):
         session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })

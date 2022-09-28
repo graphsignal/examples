@@ -11,7 +11,6 @@ from torch.optim.lr_scheduler import StepLR
 #   expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
 graphsignal.configure()
-tracer = graphsignal.tracer(with_profiler='pytorch')
 
 
 class Net(nn.Module):
@@ -64,7 +63,7 @@ def test(args, model, device, test_loader):
     with torch.no_grad():
         for data, target in test_loader:
             # Graphsignal: measure and profile inference
-            with tracer.trace(endpoint='mnist') as span:
+            with graphsignal.start_trace(endpoint='mnist', profiler='pytorch'):
                 data, target = data.to(device), target.to(device)
                 output = model(data)
                 test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss

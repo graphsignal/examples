@@ -21,6 +21,10 @@ def send_requests():
             if random.random() < 0.01:
                 text = None
 
+            # simulate missing value
+            if random.random() < 0.01:
+                text = ''
+
             res = requests.post('http://localhost:8001/predict', json=dict(request_id=request_id, text=text))
             logger.debug('Prediction output: %s', res.json())
         except:

@@ -18,7 +18,7 @@ logger.setLevel(logging.DEBUG)
 #   expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
 from graphsignal.callbacks.pytorch_lightning import GraphsignalCallback
-graphsignal.configure()
+graphsignal.configure(deployment='mnist')
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -73,7 +73,7 @@ mnist_model = MNISTModel()
 # Graphsignal: add callback
 trainer = Trainer(
     max_epochs=10,
-    callbacks=[GraphsignalCallback(endpoint='mnist-pl')]
+    callbacks=[GraphsignalCallback()]
 )
 
 trainer.tune(mnist_model)

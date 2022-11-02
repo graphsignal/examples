@@ -19,7 +19,7 @@ logger.setLevel(logging.DEBUG)
 # Graphsignal: import and configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
-graphsignal.configure()
+graphsignal.configure(deployment='mnist')
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -92,5 +92,5 @@ test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
 
 for x, y in test_loader:
     # Graphsignal: measure and profile inference.
-    with graphsignal.start_trace(endpoint='mnist', profiler=ort_profiler):
+    with graphsignal.start_trace(endpoint='predict', profiler=ort_profiler):
         session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })

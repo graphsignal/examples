@@ -41,7 +41,7 @@ def compute_accuracy(pipe):
 
 # Graphsignal: configure, expects GRAPHSIGNAL_API_KEY environment variable
 import graphsignal
-graphsignal.configure()
+graphsignal.configure(deployment='distilbert')
 
 
 if not args.onnx:
@@ -50,7 +50,7 @@ if not args.onnx:
 
     for _ in range(100):
         # Graphsignal: measure and profile inference
-        with graphsignal.start_trace(endpoint='distilbert', profiler='pytorch'):
+        with graphsignal.start_trace(endpoint='predict-vanilla'):
             _ = vanilla_clx(payload)
 
 if args.onnx:
@@ -102,7 +102,7 @@ if args.onnx:
     for _ in range(100):
         # Graphsignal: measure and profile inference
         with graphsignal.start_trace(
-                endpoint='distilbert', 
+                endpoint='predict-onnx', 
                 tags=dict(run_name='run1'),
                 profiler=ort_profiler):
             _ = optimum_clx(payload)

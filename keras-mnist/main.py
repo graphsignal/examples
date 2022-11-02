@@ -12,7 +12,7 @@ logger.setLevel(logging.DEBUG)
 
 # Graphsignal: configure agent
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure()
+graphsignal.configure(deployment='keras-mnist')
 
 strategy = tf.distribute.MirroredStrategy()
 print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
@@ -62,4 +62,4 @@ model.fit(ds_train,
 # Graphsignal: add callback
 model.evaluate(ds_test,
     batch_size=batch_size,
-    callbacks=[GraphsignalCallback(endpoint='keras-mnist')])
+    callbacks=[GraphsignalCallback()])

@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Graphsignal: configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure()
+graphsignal.configure(deployment='DistilBERT-prod-gpu')
 
 from graphsignal.profilers.onnxruntime_profiler import ONNXRuntimeProfiler()
 ort_profiler = ONNXRuntimeProfiler()
@@ -33,7 +33,7 @@ async def predict(request: Request):
     body = await request.json()
     inputs = tokenizer(body['text'], return_tensors="np")
     # Graphsignal: measure and profile inference
-    with graphsignal.start_trace(endpoint='DistilBERT-prod-gpu', profiler=ort_profiler):
+    with graphsignal.start_trace(endpoint='predict', profiler=ort_profiler):
         outputs = session.run(output_names=["logits"], input_feed=dict(inputs))
     return JSONResponse(content={"outputs": outputs[0].tolist()})
 

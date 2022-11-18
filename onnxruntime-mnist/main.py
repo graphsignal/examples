@@ -77,20 +77,15 @@ if not os.path.exists(TEST_MODEL_PATH):
         dynamic_axes={'input' : {0 : 'batch_size'},
                         'output' : {0 : 'batch_size'}})
 
-from graphsignal.profilers.onnxruntime_profiler import ONNXRuntimeProfiler()
-ort_profiler = ONNXRuntimeProfiler()
-
 sess_options = onnxruntime.SessionOptions()
 sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
-ort_profiler.initialize_options(sess_options)
 
 session = onnxruntime.InferenceSession(TEST_MODEL_PATH, sess_options)
-ort_profiler.set_onnx_session(session)
 
 test_ds = MNIST(PATH_DATASETS, train=False, download=True, transform=transforms.ToTensor())
 test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
 
 for x, y in test_loader:
-    # Graphsignal: measure and profile inference.
-    with graphsignal.start_trace(endpoint='predict', profiler=ort_profiler):
+    # Graphsignal: measure inference.
+    with graphsignal.start_trace(endpoint='predict'):
         session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })

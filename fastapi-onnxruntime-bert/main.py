@@ -15,16 +15,9 @@ logging.basicConfig(level=logging.DEBUG)
 #   expects GRAPHSIGNAL_API_KEY environment variable
 graphsignal.configure(deployment='DistilBERT-prod-gpu')
 
-from graphsignal.profilers.onnxruntime_profiler import ONNXRuntimeProfiler()
-ort_profiler = ONNXRuntimeProfiler()
-
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased", cache_dir='temp/cache')
 
-sess_options = onnxruntime.SessionOptions()
-ort_profiler.initialize_options(sess_options)
-
-session = onnxruntime.InferenceSession("temp/model.onnx", sess_options, providers=['CUDAExecutionProvider'])
-ort_profiler.set_onnx_session(session)
+session = onnxruntime.InferenceSession("temp/model.onnx", providers=['CUDAExecutionProvider'])
 
 app = FastAPI()
 
@@ -32,8 +25,8 @@ app = FastAPI()
 async def predict(request: Request):
     body = await request.json()
     inputs = tokenizer(body['text'], return_tensors="np")
-    # Graphsignal: measure and profile inference
-    with graphsignal.start_trace(endpoint='predict', profiler=ort_profiler):
+    # Graphsignal: measure inference
+    with graphsignal.start_trace(endpoint='predict'):
         outputs = session.run(output_names=["logits"], input_feed=dict(inputs))
     return JSONResponse(content={"outputs": outputs[0].tolist()})
 

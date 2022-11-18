@@ -49,7 +49,7 @@ if not args.onnx:
     accuracy = compute_accuracy(vanilla_clx)
 
     for _ in range(100):
-        # Graphsignal: measure and profile inference
+        # Graphsignal: measure inference
         with graphsignal.start_trace(endpoint='predict-vanilla'):
             _ = vanilla_clx(payload)
 
@@ -76,21 +76,11 @@ if args.onnx:
 
     import onnxruntime
 
-    from graphsignal.profilers.onnxruntime_profiler import ONNXRuntimeProfiler()
-    ort_profiler = ONNXRuntimeProfiler()
-
-    sess_options = onnxruntime.SessionOptions()
-
-    # Graphsignal: initialize profiler for ONNX Runtime session
-    ort_profiler.initialize_options(sess_options)
-
     session = onnxruntime.InferenceSession(
         str(onnx_path / 'model.onnx'),
-        sess_options,
         providers=[
             'CUDAExecutionProvider' if args.gpu else 'CPUExecutionProvider'
         ])
-    ort_profiler.set_onnx_session(session)
 
     model_from_session = ORTModelForSequenceClassification(
         model=session, 
@@ -100,9 +90,8 @@ if args.onnx:
     accuracy = compute_accuracy(optimum_clx)
 
     for _ in range(100):
-        # Graphsignal: measure and profile inference
+        # Graphsignal: measure inference
         with graphsignal.start_trace(
                 endpoint='predict-onnx', 
-                tags=dict(run_name='run1'),
-                profiler=ort_profiler):
+                tags=dict(run_name='run1')):
             _ = optimum_clx(payload)

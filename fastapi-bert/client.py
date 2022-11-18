@@ -18,11 +18,11 @@ def send_requests():
             text = 'This API is so good'
 
             # simulate inference exception
-            if random.random() < 0.01:
+            if random.random() < 0.001:
                 text = None
 
             # simulate missing value
-            if random.random() < 0.01:
+            if random.random() < 0.001:
                 text = ''
 
             res = requests.post('http://localhost:8001/predict', json=dict(request_id=request_id, text=text))

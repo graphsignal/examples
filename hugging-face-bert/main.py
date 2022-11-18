@@ -37,7 +37,7 @@ class MyTrainer(Trainer):
         super().__init__(*args, **kwargs)
     
     def prediction_step(self, *args, **kwargs):
-        # Graphsignal: measure and profile inference
+        # Graphsignal: measure inference
         with graphsignal.start_trace(endpoint='predict'):
             return super().prediction_step(*args, **kwargs)
 

@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Graphsignal: configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(deployment='gpt-neo-prod', debug_mode=True)
+graphsignal.configure(deployment='gpt-neo-prod')
 
 local_rank = int(os.getenv('LOCAL_RANK', '0'))
 world_size = int(os.getenv('WORLD_SIZE', '1'))

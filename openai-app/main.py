@@ -14,7 +14,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Graphsignal: configure
 #   expects GRAPHSIGNAL_API_KEY environment variable
-graphsignal.configure(deployment='openai-app-example', debug_mode=True)
+graphsignal.configure(deployment='openai-app-example')
 
 
 prompts = [

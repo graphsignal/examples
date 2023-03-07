@@ -1,3 +1,3 @@
-# ONNX Runtime MNIST Example
+# LangChain Example
 
 * Run `tools/run-example.sh`

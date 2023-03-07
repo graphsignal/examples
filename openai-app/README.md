@@ -1,3 +1,3 @@
-# ONNX Runtime MNIST Example
+# OpenAI Example
 
 * Run `tools/run-example.sh`

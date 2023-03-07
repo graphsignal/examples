@@ -1,3 +1,3 @@
-# ONNX Runtime MNIST Example
+# DeepSpeed Example
 
 * Run `tools/run-example.sh`

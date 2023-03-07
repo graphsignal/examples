@@ -1,3 +1,3 @@
-# ONNX Runtime MNIST Example
+# FastAPI BERT Example
 
 * Run `tools/run-example.sh`

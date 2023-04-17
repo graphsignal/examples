@@ -1,9 +1,7 @@
-import os
 import logging
 import time
 import random
-import langchain
-from langchain.agents import Tool, initialize_agent, load_tools
+from langchain.agents import initialize_agent, load_tools
 from langchain.chat_models import ChatOpenAI
 
 logging.basicConfig()
@@ -13,11 +11,9 @@ logger.setLevel(logging.DEBUG)
 # import and initialize graphsignal
 # add GRAPSIGNAL_API_KEY to your environment variables
 import graphsignal
-graphsignal.configure(deployment='langchain-demo', record_data_samples=True)
+graphsignal.configure(deployment='langchain-demo')
 
 
-# optionally add decorator to trace solve function
-@graphsignal.trace_function
 def solve(task):
     llm = ChatOpenAI(temperature=0)
     tools = load_tools(["llm-math"], llm=llm)
@@ -33,6 +29,7 @@ while True:
     
     try:
         solve(f"What is {num} raised to .123243 power?")
+        logger.debug('Task solved')
     except:
         logger.error("Error while solving task", exc_info=True)
 

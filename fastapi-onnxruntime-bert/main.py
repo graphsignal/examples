@@ -26,7 +26,7 @@ async def predict(request: Request):
     body = await request.json()
     inputs = tokenizer(body['text'], return_tensors="np")
     # Graphsignal: measure inference
-    with graphsignal.start_trace(endpoint='predict'):
+    with graphsignal.start_trace('predict'):
         outputs = session.run(output_names=["logits"], input_feed=dict(inputs))
     return JSONResponse(content={"outputs": outputs[0].tolist()})
 

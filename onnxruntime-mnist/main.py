@@ -87,5 +87,5 @@ test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE)
 
 for x, y in test_loader:
     # Graphsignal: measure inference.
-    with graphsignal.start_trace(endpoint='predict'):
+    with graphsignal.start_trace('predict'):
         session.run(None, { 'input': x.detach().cpu().numpy().reshape((x.shape[0], 28 * 28)) })

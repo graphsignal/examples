@@ -50,7 +50,7 @@ if not args.onnx:
 
     for _ in range(100):
         # Graphsignal: measure inference
-        with graphsignal.start_trace(endpoint='predict-vanilla'):
+        with graphsignal.start_trace('predict-vanilla'):
             _ = vanilla_clx(payload)
 
 if args.onnx:
@@ -92,6 +92,6 @@ if args.onnx:
     for _ in range(100):
         # Graphsignal: measure inference
         with graphsignal.start_trace(
-                endpoint='predict-onnx', 
+                'predict-onnx', 
                 tags=dict(run_name='run1')):
             _ = optimum_clx(payload)

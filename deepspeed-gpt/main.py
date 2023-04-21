@@ -36,7 +36,7 @@ try:
     while True:
         input_text = 'DeepSpeed is'
         # Graphsignal: measure inference
-        with graphsignal.start_trace(endpoint='predict') as trace:
+        with graphsignal.start_trace('predict') as trace:
             trace.set_data('input', input_text)
             output = generator(input_text, do_sample=False, min_length=50, max_length=50)
             trace.set_data('output', output)

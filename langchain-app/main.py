@@ -13,7 +13,6 @@ logger.setLevel(logging.DEBUG)
 import graphsignal
 graphsignal.configure(deployment='langchain-demo')
 
-
 def solve(task):
     llm = ChatOpenAI(temperature=0)
     tools = load_tools(["llm-math"], llm=llm)

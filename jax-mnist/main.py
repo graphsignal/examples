@@ -51,7 +51,7 @@ def one_hot(x, k, dtype=jnp.float32):
 def accuracy(params, images, targets):
   target_class = jnp.argmax(targets, axis=1)
   # Graphsignal: measure inference
-  with graphsignal.start_trace(endpoint='predict'):
+  with graphsignal.start_trace('predict'):
     predicted_class = jnp.argmax(batched_predict(params, images), axis=1)
     return jnp.mean(predicted_class == target_class)
 

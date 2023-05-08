@@ -24,8 +24,8 @@ async def predict(request: Request):
     body = await request.json()
 
     # Graphsignal: measure inference
-    with graphsignal.start_trace('predict', tags=dict(request_id=body['request_id'])) as trace:
-        trace.set_data('input', body['text'])
+    with graphsignal.start_trace('predict', tags=dict(request_id=body['request_id'])) as span:
+        span.set_data('input', body['text'])
         output = pipe(body['text'])
     return JSONResponse(content={"output": output})
 

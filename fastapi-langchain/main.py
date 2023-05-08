@@ -23,6 +23,7 @@ prompt = PromptTemplate(
 app = FastAPI()
 
 @app.post("/generate")
+@graphsignal.trace_function
 async def generate(request: Request):
     body = await request.json()
 

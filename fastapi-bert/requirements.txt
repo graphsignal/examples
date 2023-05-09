@@ -1,7 +1,0 @@
-torch
-torchmetrics
-torchvision
-transformers
-fastapi
-uvicorn
-graphsignal

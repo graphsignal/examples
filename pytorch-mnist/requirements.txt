@@ -1,6 +1,0 @@
-torch
-torchmetrics
-torchvision
-pytorch_lightning
-graphsignal
-

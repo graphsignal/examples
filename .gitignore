@@ -10,3 +10,4 @@ node_modules
 !.gitkeep
 /data
 temp
+.chroma

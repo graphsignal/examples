@@ -5,7 +5,7 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms import OpenAI
-from langchain.chains import VectorDBQA
+from langchain.chains import RetrievalQA
 from langchain.document_loaders import TextLoader
 
 logging.basicConfig()
@@ -29,7 +29,7 @@ vectordb = Chroma.from_documents(texts, embeddings)
 
 
 def answer_question(question):
-    qa = VectorDBQA.from_chain_type(llm=OpenAI(), chain_type="stuff", vectorstore=vectordb)
+    qa = RetrievalQA.from_chain_type(llm=OpenAI(), chain_type="stuff", retriever=vectordb.as_retriever())
 
     return qa.run(question)
 

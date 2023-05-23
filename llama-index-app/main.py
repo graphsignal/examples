@@ -1,12 +1,7 @@
 import logging
 import time
 import random
-from langchain.vectorstores import Chroma
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.llms import OpenAI
-from langchain.chains import RetrievalQA
-from langchain.document_loaders import TextLoader
+from llama_index import SimpleDirectoryReader, GPTVectorStoreIndex
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -15,27 +10,20 @@ logger.setLevel(logging.DEBUG)
 # import and initialize graphsignal
 # add GRAPSIGNAL_API_KEY to your environment variables
 import graphsignal
-graphsignal.configure(deployment='langchain-chroma-example')
+graphsignal.configure(deployment='llama-index-example-demo')
 
 
-loader = TextLoader('data.txt')
-documents = loader.load()
+# initialize index
+documents = SimpleDirectoryReader("./data").load_data()
+index = GPTVectorStoreIndex.from_documents(documents)
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-texts = text_splitter.split_documents(documents)
-
-embeddings = OpenAIEmbeddings()
-vectordb = Chroma.from_documents(texts, embeddings)
-
-
+# answer questions
 def answer_question(question):
-    qa = RetrievalQA.from_chain_type(llm=OpenAI(), chain_type="stuff", retriever=vectordb.as_retriever())
+  query_engine = index.as_query_engine()
+  return query_engine.query(question)
 
-    return qa.run(question)
 
-
-# simulate some requests
-
+# simulate requests
 questions = [
     'Who proposed the concept of quantization and introduced the idea of energy being emitted in discrete packets or "quanta"?',
     'What is the significance of the uncertainty principle in quantum mechanics?',

@@ -13,7 +13,9 @@ logger.setLevel(logging.DEBUG)
 import graphsignal
 graphsignal.configure(deployment='langchain-demo')
 
-def solve(task):
+def solve(user_id, task):
+    graphsignal.set_context_tag('user', user_id)
+
     llm = ChatOpenAI(temperature=0)
     tools = load_tools(["llm-math"], llm=llm)
     agent = initialize_agent(
@@ -24,10 +26,11 @@ def solve(task):
 
 # simulate some requests
 while True:
+    id = random.randint(0, 10)
     num = random.randint(0, 100)
     
     try:
-        solve(f"What is {num} raised to .123243 power?")
+        solve(f'user{id}', f"What is {num} raised to .123243 power?")
         logger.debug('Task solved')
     except:
         logger.error("Error while solving task", exc_info=True)

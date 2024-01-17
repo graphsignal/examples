@@ -7,9 +7,9 @@ source venv/bin/activate
 
 pip install --upgrade pip
 pip install --upgrade setuptools
-pip install langchain
-pip install numexpr
-pip install openai
-pip install graphsignal
+pip install --upgrade langchain
+pip install --upgrade numexpr
+pip install --upgrade openai
+pip install --upgrade graphsignal
 
 deactivate

@@ -14,7 +14,7 @@ import graphsignal
 graphsignal.configure(deployment='langchain-demo', debug_mode=True)
 
 def solve(user_id, task):
-    graphsignal.set_context_tag('user', user_id)
+    graphsignal.set_context_tag('user_id', user_id)
 
     llm = ChatOpenAI(temperature=0, streaming=True)
     tools = load_tools(["llm-math"], llm=llm)

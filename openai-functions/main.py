@@ -65,7 +65,7 @@ def run_conversation():
 
         # Step 3, call the function
         # Note: the JSON response from the model may not be valid JSON
-        with graphsignal.start_trace('get_current_weather') as span:
+        with graphsignal.trace('get_current_weather') as span:
             function_response = get_current_weather(
                 location=function_args.get("location"),
                 unit=function_args.get("unit"),

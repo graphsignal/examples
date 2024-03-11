@@ -1,5 +1,0 @@
-openai
-tiktoken
-langchain
-chromadb
-graphsignal

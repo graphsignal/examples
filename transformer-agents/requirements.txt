@@ -1,3 +1,0 @@
-openai
-transofmers[agents]
-graphsignal
